@@ -27,7 +27,7 @@ void handl_alrm(int sig){
 	sigflags &= 0xFE;
 }
 
-void request_stop(int sig){
+void rq_stop(int sig){
 	if (stop_sig) _exit(EXIT_FAILURE);//already shutting down and the user insists
 	stop_sig = sig;
 }
@@ -47,7 +47,7 @@ void chk_dbl(int sig){
 //Note that we only check # of this sig, so e.g. ^C^Z will stop.
 	else switch (sig){
 		case SIGINT:
-			request_stop(sig);
+			rq_stop(sig);
 			break;
 		case SIGQUIT:
 			abort();
@@ -55,7 +55,7 @@ void chk_dbl(int sig){
 		case SIGTSTP:
 			raise(SIGSTOP);
 			break;
-		default: request_stop(sig);
+		default: rq_stop(sig);
 	}
 }
 
@@ -73,7 +73,7 @@ void register_handlers(void){//see `man sigaction` if confused
 	sigstruct.sa_mask = blkmask;
 	sigstruct.sa_handler = handl_alrm;
 	if (sigaction(SIGALRM, &sigstruct, NULL) == -1) goto err;
-	sigstruct.sa_handler = request_stop;
+	sigstruct.sa_handler = rq_stop;
 	if (sigaction(SIGHUP, &sigstruct, NULL) == -1) goto err;
 	if (sigaction(SIGTERM, &sigstruct, NULL) == -1) goto err;
 	sigstruct.sa_handler = chk_dbl;
