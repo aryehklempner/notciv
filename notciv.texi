@@ -1,0 +1,76 @@
+\input texinfo
+@c notciv.texi - Texinfo manual for notciv
+@setfilename notciv.info
+@settitle notciv Manual
+@copying
+This manual is for notciv, a server-client game, which is still in pre-alpha
+development.
+
+Copyright @copyright{} 2026 Aryeh Klempner.
+
+Permission is granted to copy, distribute and/or modify this document under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+@end copying
+
+@titlepage
+@title notciv
+@subtitle A server-client game
+@author Aryeh Klempner
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top notciv
+
+@insertcopying
+@end ifnottex
+
+@menu
+* Overview::      What notciv is.
+* Invoking::      Command-line options.
+* Index::         Index of concepts.
+@end menu
+
+@node Overview
+@chapter Overview
+@cindex overview
+
+notciv is a server-client game.  It is in pre-alpha development, so do not
+expect it to be playable for a while.
+
+@node Invoking
+@chapter Invoking notciv
+@cindex invoking
+@cindex options
+@cindex command-line arguments
+
+The server takes the following options.
+
+@table @option
+@item -h
+@itemx --help
+Print a short pointer to this manual and exit.
+
+@item --version
+Print the development status of notciv and exit.
+
+@item --loud
+Print extra diagnostic messages during startup.
+
+@item --quiet
+Suppress warnings about unrecognized arguments.
+@end table
+
+@node Index
+@unnumbered Index
+
+@printindex cp
+
+@bye
