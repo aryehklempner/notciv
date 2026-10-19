@@ -11,16 +11,17 @@ have received a copy of the GPL with this program. If not, see
 
 #include <signal.h>//raise(), sigaction()
 #include <stdint.h>
-#include <stdio.h>//perror(), puts()
+#include <stdio.h>//perror()
 #include <stdlib.h>//exit(), _exit()
 #include <termios.h>//tcdrain(), tcflush()
 #include <unistd.h>//alarm(), isatty()
+
+#include "log.h"//log_msg(), LVL_INFO
 
 //0: whether a tty sig was rcvd in past second; 1-8 rsvd
 volatile sig_atomic_t sigflags;
 //0 until a stop is requested, then the signal number; only handlers write it
 volatile sig_atomic_t stop_sig;
-extern uint8_t srv_flags;
 
 void handl_alrm(int sig){
 	(void)sig;
@@ -82,8 +83,8 @@ void register_handlers(void){//see `man sigaction` if confused
 	if (sigaction(SIGTSTP, &sigstruct, NULL) == -1) goto err;
 	sigstruct.sa_handler = SIG_IGN;//a dead client socket must not kill the server; check for EPIPE instead
 	if (sigaction(SIGPIPE, &sigstruct, NULL) == -1) goto err;
-	if (srv_flags & 0x01) puts("All signal handlers set up successfully");
+	log_msg(LVL_INFO, "All signal handlers set up successfully");
 	return;
-err:if (!(srv_flags & 0x02)) perror("Signal handler setup failed");
+err:perror("Signal handler setup failed");
 	exit(EXIT_FAILURE);
 }

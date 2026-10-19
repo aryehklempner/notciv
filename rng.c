@@ -19,12 +19,12 @@ copy of the GPL with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <sys/random.h>//getrandom()
 #include <stdint.h>
-#include <stdio.h>//perror(), puts()
+#include <stdio.h>//perror()
 #include <stdlib.h>//exit()
 
 #include "bitops.h"
+#include "log.h"//log_msg(), LVL_INFO
 
-extern uint8_t srv_flags;
 static uint64_t splitmix_state;
 static uint64_t xoshiro_state[4];
 
@@ -68,5 +68,5 @@ void rng_init(void){
 	xoshiro_state[1] = splitmix64();
 	xoshiro_state[2] = splitmix64();
 	xoshiro_state[3] = splitmix64();
-	if (srv_flags & 0x01) puts("RNG initialized successfully");
+	log_msg(LVL_INFO, "RNG initialized successfully");
 }
