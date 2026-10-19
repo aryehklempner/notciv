@@ -1,0 +1,28 @@
+# Coding conventions
+
+## Commits
+- Start every commit message with `[CLAUDE]`, e.g. `[CLAUDE] Fix off-by-one in argchk`.
+- Keep the `Co-Authored-By` trailer on commits made by Claude.
+
+## Includes (C/C++)
+- Every `#include` gets a trailing comment naming the functions, macros or types it is there for, with no space before the `//`:
+  `#include <stdlib.h>//exit(), NULL`
+- Exception: `<stdint.h>` and `<stdbool.h>` are left unannotated, since their types are obvious.
+- Local headers (`#include "bitops.h"`) are annotated like any other include.
+
+## Style
+- Indent with tabs. Opening braces go on the same line as the statement.
+- Names are lowercase with underscores, short and abbreviated (`chk_dbl`, `rng_init`, `srv_flags`).
+- Header include guards are prefixed with the project name, e.g. `TESLA_BITOPS_H`.
+- Single-statement `if`s may go on one line without braces.
+- Use `static inline` for small helpers and `static` for private file-scope state.
+- Prefer `goto err` for error cleanup in C. Report failures with `perror()` and then `exit(EXIT_FAILURE)`.
+- Small flag sets are `uint8_t` bitfields. Document the bit layout in a comment above the variable and mark unused bits "rsvd".
+
+## Comments
+- Start each file with a one-line `//` summary, followed by the license notice.
+- Comments are short and casual. Use them to explain design decisions, not to restate the code.
+- Keep attribution and licensing notes for any code derived from elsewhere.
+
+## Build
+- Compile with `-std=c17 -pedantic -Wall -Wextra` plus the strict warning set used in the `tesla` Makefile (`-Wshadow`, `-Wswitch-enum`, `-Wswitch-default`, `-Wfloat-equal`, `-Wcast-align`, etc.). Code should build warning-free.
