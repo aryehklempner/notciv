@@ -61,7 +61,7 @@ uint64_t xoshiro256plus_next(void){
 
 void rng_init(void){
 	if (getrandom(&splitmix_state, sizeof splitmix_state, 0) == -1L){
-		perror("Failed to seed RNG, please examine your /dev/urandom");
+		perror("Failed to seed splitmix w/ getrandom()");
 		exit(EXIT_FAILURE);
 	}
 	xoshiro_state[0] = splitmix64();
