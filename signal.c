@@ -21,10 +21,12 @@ volatile uint8_t sigflags;
 extern uint8_t srv_flags;
 
 void handl_alrm(int sig){
+	(void)sig;
 	sigflags &= 0xFE;
 }
 
 void clean_exit(int sig){
+	(void)sig;
 	if (isatty(STDIN_FILENO)) tcflush(STDIN_FILENO, TCIFLUSH);
 	if (isatty(STDOUT_FILENO)) tcdrain(STDOUT_FILENO);
 	if (isatty(STDERR_FILENO)) tcdrain(STDERR_FILENO);
