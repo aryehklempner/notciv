@@ -8,7 +8,7 @@
 - Every `#include` gets a trailing comment naming the functions, macros or types it is there for, with no space before the `//`:
   `#include <stdlib.h>//exit(), NULL`
 - Exception: `<stdint.h>` and `<stdbool.h>` are left unannotated, since their types are obvious.
-- Local headers (`#include "bitops.h"`) are annotated like any other include.
+- Local headers are annotated like any other include, except `"bitops.h"`. Its `rol()`/`ror()` are treated as local primitives, equivalent to an operator that compiles down to one instruction, so they need no annotation.
 
 ## Style
 - Indent with tabs. Opening braces go on the same line as the statement.
