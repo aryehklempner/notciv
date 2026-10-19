@@ -13,7 +13,7 @@ have received a copy of the GPL with this program. If not, see
 #include <stdint.h>
 #include <stdio.h>//printf(), puts()
 #include <stdlib.h>//exit()
-#include <string.h>//strncmp()
+#include <string.h>//strcmp()
 
 #define MAX_POSSIBLE_VALID_ARGC 4 //counting -h and -v
 
@@ -25,20 +25,19 @@ void rng_init(void);
 
 static inline void argchk(int argc, char *argv[]){
 	for (int i = 1; i < argc && i <= MAX_POSSIBLE_VALID_ARGC; i++){
-		if (!strncmp((const char*) argv[i], "-h", 2) ||
-		!strncmp((const char*) argv[i], "--help", 6)){
+		if (!strcmp((const char*) argv[i], "-h") ||
+		!strcmp((const char*) argv[i], "--help")){
 			puts("Try \"info notciv\"");
 			exit(EXIT_SUCCESS);
 		}
-		else if (!strncmp((const char*) argv[i], "--version",
-		9)){
+		else if (!strcmp((const char*) argv[i], "--version")){
 			puts("`notciv` is still in pre-alpha development");
 			exit(EXIT_SUCCESS);
 		}
-		else if (!strncmp((const char*) argv[i], "--loud", 6)){
+		else if (!strcmp((const char*) argv[i], "--loud")){
 			srv_flags |= 0x01;
 		}
-		else if (!strncmp((const char*) argv[i], "--quiet", 7)){
+		else if (!strcmp((const char*) argv[i], "--quiet")){
 			srv_flags |= 0x02;
 		}
 	}
@@ -46,10 +45,10 @@ static inline void argchk(int argc, char *argv[]){
 
 static inline void parse_args(int argc, char *argv[]){
 	for (int i = 1; i < argc && i <= MAX_POSSIBLE_VALID_ARGC; i++){
-		if(!strncmp ((const char*) argv[i], "--loud", 6)){
+		if(!strcmp((const char*) argv[i], "--loud")){
 			continue;
 		}
-		else if (!strncmp((const char*) argv[i], "--quiet", 7)){
+		else if (!strcmp((const char*) argv[i], "--quiet")){
 			continue;
 		}
 		else if (!(srv_flags & 0x02)){
