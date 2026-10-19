@@ -61,33 +61,6 @@ uint64_t xoshiro256plus_next(void){
 	return result;
 }
 
-/* This is the jump function for the generator. It is equivalent
-   to 2^128 calls to next(); it can be used to generate 2^128
-   non-overlapping subsequences for parallel computations. */
-
-/* void xoshiro_jump(void) {
-	static const uint64_t jump_consts[] = {0x180ec6d33cfd0aba,
-0xd5a61266f0c9392c, 0xa9582618e03fc9aa, 0x39abdc4529b1661c};
-	uint64_t s0 = 0;
-	uint64_t s1 = 0;
-	uint64_t s2 = 0;
-	uint64_t s3 = 0;
-	for (int i = 0; i < sizeof jump_consts / sizeof *jump_consts; i++)
-		for (int b = 0; b < 64; b++) {
-			if (jump_consts[i] & UINT64_C(1) << b) {
-				s0 ^= xoshiro_state[0];
-				s1 ^= xoshiro_state[1];
-				s2 ^= xoshiro_state[2];
-				s3 ^= xoshiro_state[3];
-			}
-			xoshiro256plus_next();	
-		}
-	xoshiro_state[0] = s0;
-	xoshiro_state[1] = s1;
-	xoshiro_state[2] = s2;
-	xoshiro_state[3] = s3;
-} */
-
 void rng_init(void){
 	if (getrandom(&splitmix_state, sizeof splitmix_state, 0) == -1L){
 		perror("Failed to seed RNG, please examine your /dev/urandom");
