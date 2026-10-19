@@ -74,6 +74,8 @@ void register_handlers(void){//see `man sigaction` if confused
 	if (sigaction(SIGINT, &sigstruct, NULL) == -1) goto err;
 	if (sigaction(SIGQUIT, &sigstruct, NULL) == -1) goto err;
 	if (sigaction(SIGTSTP, &sigstruct, NULL) == -1) goto err;
+	sigstruct.sa_handler = SIG_IGN;//a dead client socket must not kill the server; check for EPIPE instead
+	if (sigaction(SIGPIPE, &sigstruct, NULL) == -1) goto err;
 	if (srv_flags & 0x01) puts("All signal handlers set up successfully");
 	return;
 err:if (!(srv_flags & 0x02)) perror("Signal handler setup failed");
