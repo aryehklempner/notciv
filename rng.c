@@ -17,14 +17,7 @@ PARTICULAR PURPOSE.  See the GPL for more details. You should have received a
 copy of the GPL with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <linux/version.h>//KERNEL_VERSION()
-#if((__GLIBC__ > 2 || __GLIBC_MINOR__ >= 25) && LINUX_VERSION_CODE >= KERNEL_VERSION(3,17,0))
 #include <sys/random.h>//getrandom()
-#define LIBC_HAS_GETRANDOM 1
-#else
-#include <sys/syscall.h>//syscall()
-#define LIBC_HAS_GETRANDOM 0
-#endif
 #include <stdint.h>
 #include <stdio.h>//perror(), puts()
 #include <stdlib.h>//NULL, exit()
@@ -32,16 +25,6 @@ copy of the GPL with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>//getpid(), getppid()
 
 #include "bitops.h"
-
-static inline long getrandom_wrapper(void* buf){
-	long result;
-	#if (LIBC_HAS_GETRANDOM == 0)
-	result = syscall(SYS_getrandom, buf, 8, 0);
-	#else
-	result = (long)(getrandom(buf, 8, 0));
-	#endif
-	return result;
-}
 
 extern uint8_t srv_flags;
 static uint64_t splitmix_state;
@@ -106,8 +89,7 @@ uint64_t xoshiro256plus_next(void){
 } */
 
 void rng_init(void){
-	void* seedptr = &splitmix_state;
-	if (getrandom_wrapper(seedptr) == -1L){
+	if (getrandom(&splitmix_state, sizeof splitmix_state, 0) == -1L){
 		perror("Failed to seed RNG, please examine your /dev/urandom");
 		exit(EXIT_FAILURE);
 	}
