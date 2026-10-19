@@ -22,6 +22,7 @@ uint8_t srv_flags;
 
 void register_handlers(void);
 void rng_init(void);
+void shutdown_tty(void);
 
 static inline void argchk(int argc, char *argv[]){
 	for (int i = 1; i < argc && i <= MAX_POSSIBLE_VALID_ARGC; i++){
@@ -64,5 +65,6 @@ int main(int argc, char *argv[]){
 	register_handlers();
 	if (argc > 1) parse_args(argc, argv);
 	rng_init();
+	shutdown_tty();
 	exit(EXIT_SUCCESS);
 }

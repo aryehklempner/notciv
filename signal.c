@@ -17,7 +17,9 @@ have received a copy of the GPL with this program. If not, see
 #include <unistd.h>//alarm(), isatty()
 
 //0: whether a tty sig was rcvd in past second; 1-8 rsvd
-volatile uint8_t sigflags;
+volatile sig_atomic_t sigflags;
+//0 until a stop is requested, then the signal number; only handlers write it
+volatile sig_atomic_t stop_sig;
 extern uint8_t srv_flags;
 
 void handl_alrm(int sig){
@@ -25,12 +27,16 @@ void handl_alrm(int sig){
 	sigflags &= 0xFE;
 }
 
-void clean_exit(int sig){
-	(void)sig;
+void request_stop(int sig){
+	if (stop_sig) _exit(EXIT_FAILURE);//already shutting down and the user insists
+	stop_sig = sig;
+}
+
+//normal context only; call on the way out of main()
+void shutdown_tty(void){
 	if (isatty(STDIN_FILENO)) tcflush(STDIN_FILENO, TCIFLUSH);
 	if (isatty(STDOUT_FILENO)) tcdrain(STDOUT_FILENO);
 	if (isatty(STDERR_FILENO)) tcdrain(STDERR_FILENO);
-	_exit(EXIT_SUCCESS);
 }
 
 void chk_dbl(int sig){
@@ -41,7 +47,7 @@ void chk_dbl(int sig){
 //Note that we only check # of this sig, so e.g. ^C^Z will stop.
 	else switch (sig){
 		case SIGINT:
-			clean_exit(sig);
+			request_stop(sig);
 			break;
 		case SIGQUIT:
 			abort();
@@ -49,7 +55,7 @@ void chk_dbl(int sig){
 		case SIGTSTP:
 			raise(SIGSTOP);
 			break;
-		default: clean_exit(sig);
+		default: request_stop(sig);
 	}
 }
 
@@ -67,7 +73,7 @@ void register_handlers(void){//see `man sigaction` if confused
 	sigstruct.sa_mask = blkmask;
 	sigstruct.sa_handler = handl_alrm;
 	if (sigaction(SIGALRM, &sigstruct, NULL) == -1) goto err;
-	sigstruct.sa_handler = clean_exit;
+	sigstruct.sa_handler = request_stop;
 	if (sigaction(SIGHUP, &sigstruct, NULL) == -1) goto err;
 	if (sigaction(SIGTERM, &sigstruct, NULL) == -1) goto err;
 	sigstruct.sa_handler = chk_dbl;
