@@ -20,7 +20,7 @@ copy of the GPL with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <sys/random.h>//getrandom()
 #include <stdint.h>
 #include <stdio.h>//perror(), puts()
-#include <stdlib.h>//NULL, exit()
+#include <stdlib.h>//exit()
 
 #include "bitops.h"
 
