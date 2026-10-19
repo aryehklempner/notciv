@@ -21,8 +21,6 @@ copy of the GPL with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <stdint.h>
 #include <stdio.h>//perror(), puts()
 #include <stdlib.h>//NULL, exit()
-#include <time.h>//time()
-#include <unistd.h>//getpid(), getppid()
 
 #include "bitops.h"
 
