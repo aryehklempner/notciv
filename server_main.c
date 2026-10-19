@@ -1,5 +1,5 @@
 //Server entry point and CLI argument handling
-/*(c) 2018-20 Aryeh Klempner <arayaydev@gmail.com>
+/*(c) 2018-26 Aryeh Klempner <arayaydev@gmail.com>
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License (GPL) as published by the Free
 Software Foundation, either version 3 of the GPL, or (at your option) any
