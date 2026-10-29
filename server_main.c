@@ -17,7 +17,6 @@ have received a copy of the GPL with this program. If not, see
 
 #include "log.h"//log_init(), log_msg(), LVL_WARN
 
-
 //bits: 0=loud 1=quiet 2-8=rsvd
 uint8_t srv_flags;
 
