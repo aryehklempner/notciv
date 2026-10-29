@@ -20,11 +20,11 @@ copy of the GPL with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <sys/random.h>//getrandom()
 #include <stdint.h>
 #include <stdio.h>//perror()
-#include <stdlib.h>//exit()
+#include <stdlib.h>//exit(), EXIT_FAILURE
 
 #include "bitops.h"
 #include "log.h"//log_msg(), LVL_INFO
-#include "rng.h"//prototypes checked against the definitions here
+#include "rng.h"//rng_init(), rng_below(), xoshiro256plus_next()
 
 static uint64_t splitmix_state;
 static uint64_t xoshiro_state[4];

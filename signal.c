@@ -9,13 +9,13 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GPL for more details. You should
 have received a copy of the GPL with this program. If not, see
 <http://www.gnu.org/licenses/>.*/
 
-#include <signal.h>//raise(), sigaction()
+#include <signal.h>//sigaction(), sigemptyset(), sigaddset(), raise(), sigset_t, sig_atomic_t, SA_RESTART, SIG*
 #include <stdint.h>
 #include <stdio.h>//perror()
-#include <stdlib.h>//exit(), _exit()
+#include <stdlib.h>//exit(), abort(), EXIT_FAILURE, NULL
 #include <string.h>//memset()
-#include <termios.h>//tcdrain(), tcflush()
-#include <unistd.h>//alarm(), isatty()
+#include <termios.h>//tcdrain(), tcflush(), TCIFLUSH
+#include <unistd.h>//alarm(), isatty(), _exit(), STD*_FILENO
 
 #include "log.h"//log_msg(), LVL_INFO
 

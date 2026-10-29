@@ -12,7 +12,7 @@ have received a copy of the GPL with this program. If not, see
 
 #include <stdint.h>
 #include <stdio.h>//puts()
-#include <stdlib.h>//exit()
+#include <stdlib.h>//exit(), EXIT_SUCCESS
 #include <string.h>//strcmp()
 
 #include "log.h"//log_init(), log_msg(), LVL_WARN

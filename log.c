@@ -12,10 +12,10 @@ have received a copy of the GPL with this program. If not, see
 
 #include <stdarg.h>//va_list, va_start(), va_end()
 #include <stdint.h>
-#include <stdio.h>//fputc(), setvbuf(), vfprintf(), stdout, stderr
-#include <unistd.h>//isatty()
+#include <stdio.h>//fputc(), setvbuf(), vfprintf(), stdout, stderr, _IOLBF, NULL
+#include <unistd.h>//isatty(), STDOUT_FILENO
 
-#include "log.h"//LVL_WARN, LVL_INFO
+#include "log.h"//log_init(), log_msg(), LVL_WARN, LVL_INFO
 
 extern uint8_t srv_flags;
 

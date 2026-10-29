@@ -13,10 +13,10 @@ have received a copy of the GPL with this program. If not, see
 #include <inttypes.h>//PRIu64, PRIu32
 #include <stdint.h>
 #include <stdio.h>//perror()
-#include <stdlib.h>//exit()
-#include <sys/resource.h>//getrlimit(), setrlimit(), RLIMIT_NOFILE
+#include <stdlib.h>//exit(), EXIT_FAILURE
+#include <sys/resource.h>//getrlimit(), setrlimit(), struct rlimit, rlim_t, RLIMIT_NOFILE
 
-#include "log.h"//log_msg(), LVL_WARN, LVL_INFO
+#include "log.h"//log_msg(), LVL_ERR, LVL_WARN, LVL_INFO
 
 #define FD_CAP UINT64_C(65536) //don't raise the soft limit past this even if the hard limit allows
 #define FD_RESERVE UINT64_C(16) //stdio, the listener, log/save files, and some slack
