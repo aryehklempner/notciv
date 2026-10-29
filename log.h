@@ -18,5 +18,5 @@ have received a copy of the GPL with this program. If not, see
 #define LVL_INFO 2 //shown only with --loud
 
 void log_init(void);
-void log_msg(uint8_t lvl, const char* fmt, ...);
+void log_msg(uint8_t lvl, const char* fmt, ...) __attribute__((format(printf, 2, 3)));//gcc checks args vs fmt
 #endif

@@ -13,6 +13,7 @@ have received a copy of the GPL with this program. If not, see
 #include <stdint.h>
 #include <stdio.h>//perror()
 #include <stdlib.h>//exit(), _exit()
+#include <string.h>//memset()
 #include <termios.h>//tcdrain(), tcflush()
 #include <unistd.h>//alarm(), isatty()
 
@@ -62,6 +63,7 @@ void chk_dbl(int sig){
 
 void register_handlers(void){//see `man sigaction` if confused
 	struct sigaction sigstruct;
+	memset(&sigstruct, 0, sizeof sigstruct);//fields we don't set (sa_restorer etc.) must not be stack garbage
 	sigset_t blkmask;
 	sigemptyset(&blkmask);
 	sigaddset(&blkmask, SIGALRM);
