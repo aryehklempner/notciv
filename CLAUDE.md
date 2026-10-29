@@ -26,5 +26,5 @@
 
 ## Build
 - Build with `make`. The Makefile passes no `-std`, so gcc uses its default (`gnu17`), which keeps POSIX interfaces like `sigaction()` visible. Don't add `-std=c17`.
-- The Makefile's strict warning set (`-pedantic -Wall -Wextra -Wshadow -Wswitch-enum -Wswitch-default -Wfloat-equal -Wcast-align`, etc.) applies to all code. It should build warning-free.
+- The Makefile's strict warning set (`-pedantic -Wall -Wextra -Wshadow -Wswitch-enum -Wswitch-default -Wfloat-equal -Wcast-align=strict`, etc.) applies to all code. It should build warning-free.
 - The Makefile passes `-fno-math-errno`, so math functions like `sqrt()` don't set `errno` and can compile to a single instruction. Don't check `errno` after math calls. Don't add `-ffast-math`: it lets the compiler delete `isnan()` checks and reorder floating-point sums.

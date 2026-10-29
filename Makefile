@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O2 -fno-math-errno -fomit-frame-pointer -fexpensive-optimizations -flto -march=native -Wformat-security -Warray-bounds -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfloat-equal -Winline -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -pedantic -Wfatal-errors -Wextra -Wall
+CFLAGS = -O2 -fno-math-errno -fomit-frame-pointer -fexpensive-optimizations -flto -march=native -Wformat-security -Warray-bounds -Wshadow -Winit-self -Wredundant-decls -Wcast-align=strict -Wundef -Wfloat-equal -Winline -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -pedantic -Wfatal-errors -Wextra -Wall
 ODIR = obj
 BIN = ../bin/notciv-server
 SRCS = server_main.c signal.c rng.c log.c limits.c
