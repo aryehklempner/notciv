@@ -17,7 +17,6 @@ have received a copy of the GPL with this program. If not, see
 
 #include "log.h"//log_init(), log_msg(), LVL_WARN
 
-#define MAX_POSSIBLE_VALID_ARGC 4 //counting -h and -v
 
 //bits: 0=loud 1=quiet 2-8=rsvd
 uint8_t srv_flags;
@@ -28,7 +27,7 @@ void limits_init(void);
 void shutdown_tty(void);
 
 static inline void argchk(int argc, char *argv[]){
-	for (int i = 1; i < argc && i <= MAX_POSSIBLE_VALID_ARGC; i++){
+	for (int i = 1; i < argc; i++){
 		if (!strcmp((const char*) argv[i], "-h") ||
 		!strcmp((const char*) argv[i], "--help")){
 			puts("Try \"info notciv\"");
@@ -48,7 +47,7 @@ static inline void argchk(int argc, char *argv[]){
 }
 
 static inline void parse_args(int argc, char *argv[]){
-	for (int i = 1; i < argc && i <= MAX_POSSIBLE_VALID_ARGC; i++){
+	for (int i = 1; i < argc; i++){
 		if(!strcmp((const char*) argv[i], "--loud")){
 			continue;
 		}
