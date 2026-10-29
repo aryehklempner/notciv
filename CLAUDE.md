@@ -13,7 +13,7 @@
 ## Style
 - Indent with tabs. Opening braces go on the same line as the statement.
 - Names are lowercase with underscores, short and abbreviated (`chk_dbl`, `rng_init`, `srv_flags`).
-- Header include guards are prefixed with the project name, e.g. `TESLA_BITOPS_H`.
+- Header include guards are prefixed with the project name, e.g. `NOTCIV_BITOPS_H`.
 - Single-statement `if`s may go on one line without braces.
 - Use `static inline` for small helpers and `static` for private file-scope state.
 - Prefer `goto err` for error cleanup in C. Report failures with `perror()` and then `exit(EXIT_FAILURE)`.
@@ -25,4 +25,5 @@
 - Keep attribution and licensing notes for any code derived from elsewhere.
 
 ## Build
-- Compile with `-std=c17 -pedantic -Wall -Wextra` plus the strict warning set used in the `tesla` Makefile (`-Wshadow`, `-Wswitch-enum`, `-Wswitch-default`, `-Wfloat-equal`, `-Wcast-align`, etc.). Code should build warning-free.
+- Build with `make`. The Makefile passes no `-std`, so gcc uses its default (`gnu17`), which keeps POSIX interfaces like `sigaction()` visible. Don't add `-std=c17`.
+- The Makefile's strict warning set (`-pedantic -Wall -Wextra -Wshadow -Wswitch-enum -Wswitch-default -Wfloat-equal -Wcast-align`, etc.) applies to all code. It should build warning-free.

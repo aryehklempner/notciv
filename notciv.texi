@@ -53,7 +53,8 @@ expect it to be playable for a while.
 @cindex options
 @cindex command-line arguments
 
-The server takes the following options.
+The server takes the following options.  Diagnostic messages go to standard
+error; standard output is reserved for the server console.
 
 @table @option
 @item -h
@@ -64,10 +65,11 @@ Print a short pointer to this manual and exit.
 Print the development status of notciv and exit.
 
 @item --loud
-Print extra diagnostic messages during startup.
+Also print informational messages, such as progress during startup.
 
 @item --quiet
-Suppress warnings about unrecognized arguments.
+Suppress warnings, such as those about unrecognized arguments.  Errors are
+always printed.
 @end table
 
 @node GNU Free Documentation License
