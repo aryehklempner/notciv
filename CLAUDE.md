@@ -17,8 +17,8 @@
 - Single-statement `if`s may go on one line without braces.
 - Use `static inline` for small helpers and `static` for private file-scope state.
 - Prefer `goto err` for error cleanup in C. Report failures with `perror()` and then `exit(EXIT_FAILURE)`.
-- Plain `char` is for text only. Everything else uses the stdint types (`uint8_t`, `uint64_t`, etc.), including small values and counts.
-- Plain `int` and `unsigned` appear only where the language or an API dictates them (`main`, signal handler prototypes, loop indexes). `sig_atomic_t`, `rlim_t` and similar types appear only where an API requires them.
+- Plain `char` is for text only. All other integer data uses the stdint types (`uint8_t`, `uint64_t`, etc.), including small values and counts. That rules out `signed char`, `unsigned char`, `short`, `int`, `long`, `long long`, their `unsigned` forms, and bare `unsigned`.
+- The builtin integer types appear only where the language or an API dictates them: `main`'s signature, signal handler prototypes, loop indexes, API types such as `size_t`, `ssize_t`, `sig_atomic_t` and `rlim_t`, and `unsigned __int128`, which has no stdint equivalent.
 - Integer literals use `UINT64_C()` and friends, not `UL`/`L` suffixes. Print stdint types with the `PRI*` macros from `<inttypes.h>`, not by casting to `unsigned long`. Compare syscall results with plain `-1`.
 - Small flag sets are `uint8_t` bitfields. Document the bit layout in a comment above the variable and mark unused bits "rsvd".
 
