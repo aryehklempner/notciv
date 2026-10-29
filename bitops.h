@@ -6,11 +6,11 @@ The current contents of this file are not copyrightable on grounds of triviality
 #include <stdint.h>
 
 //masking keeps the shifts defined for x == 0 or x >= 64; gcc still emits one rotate
-static inline uint64_t rol(const uint64_t a, unsigned x) {
+static inline uint64_t rol(const uint64_t a, uint8_t x) {
 	return (a << (x & 63)) | (a >> (-x & 63));
 }
 
-static inline uint64_t ror(const uint64_t a, unsigned x) {
+static inline uint64_t ror(const uint64_t a, uint8_t x) {
 	return (a >> (x & 63)) | (a << (-x & 63));
 }
 #endif

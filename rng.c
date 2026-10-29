@@ -82,7 +82,7 @@ uint64_t rng_below(uint64_t n){
 }
 
 void rng_init(void){
-	if (getrandom(&splitmix_state, sizeof splitmix_state, 0) == -1L){
+	if (getrandom(&splitmix_state, sizeof splitmix_state, 0) == -1){
 		perror("Failed to seed splitmix w/ getrandom()");
 		exit(EXIT_FAILURE);
 	}

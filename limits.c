@@ -10,6 +10,7 @@ have received a copy of the GPL with this program. If not, see
 <http://www.gnu.org/licenses/>.
 */
 
+#include <inttypes.h>//PRIu64, PRIu32
 #include <stdint.h>
 #include <stdio.h>//perror()
 #include <stdlib.h>//exit()
@@ -17,8 +18,8 @@ have received a copy of the GPL with this program. If not, see
 
 #include "log.h"//log_msg(), LVL_WARN, LVL_INFO
 
-#define FD_CAP 65536UL //don't raise the soft limit past this even if the hard limit allows
-#define FD_RESERVE 16UL //stdio, the listener, log/save files, and some slack
+#define FD_CAP UINT64_C(65536) //don't raise the soft limit past this even if the hard limit allows
+#define FD_RESERVE UINT64_C(16) //stdio, the listener, log/save files, and some slack
 
 uint32_t max_clients;
 
@@ -41,9 +42,9 @@ void limits_init(void){
 	}
 	rlim_t usable = rl.rlim_cur > FD_CAP ? FD_CAP : rl.rlim_cur;
 	if (usable <= FD_RESERVE){
-		log_msg(LVL_ERR, "fd limit %lu is too low to serve any clients", (unsigned long) usable);
+		log_msg(LVL_ERR, "fd limit %" PRIu64 " is too low to serve any clients", (uint64_t) usable);
 		exit(EXIT_FAILURE);
 	}
 	max_clients = (uint32_t)(usable - FD_RESERVE);
-	log_msg(LVL_INFO, "fd limit %lu, max clients %lu", (unsigned long) rl.rlim_cur, (unsigned long) max_clients);
+	log_msg(LVL_INFO, "fd limit %" PRIu64 ", max clients %" PRIu32, (uint64_t) rl.rlim_cur, max_clients);
 }
