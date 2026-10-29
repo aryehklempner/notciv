@@ -8,6 +8,7 @@
 - Every `#include` gets a trailing comment naming the functions, macros or types it is there for, with no space before the `//`:
   `#include <stdlib.h>//exit(), NULL`
 - Exception: `<stdint.h>` and `<stdbool.h>` are left unannotated, since their types are obvious.
+- Keep the annotations up to date. Whenever code changes, make each include's comment list exactly the functions, macros and types the file uses from that header (a family of macros may use a wildcard, e.g. `SIG*`), and remove includes the file no longer needs.
 - Local headers are annotated like any other include, except `"bitops.h"`. Its `rol()`/`ror()` are treated as local primitives, equivalent to an operator that compiles down to one instruction, so they need no annotation.
 
 ## Style
