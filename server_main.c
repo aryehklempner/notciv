@@ -16,12 +16,12 @@ have received a copy of the GPL with this program. If not, see
 #include <string.h>//strcmp()
 
 #include "log.h"//log_init(), log_msg(), LVL_WARN
+#include "rng.h"//rng_init()
 
 //bits: 0=loud 1=quiet 2-8=rsvd
 uint8_t srv_flags;
 
 void register_handlers(void);
-void rng_init(void);
 void limits_init(void);
 void shutdown_tty(void);
 

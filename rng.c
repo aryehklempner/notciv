@@ -24,6 +24,7 @@ copy of the GPL with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include "bitops.h"
 #include "log.h"//log_msg(), LVL_INFO
+#include "rng.h"//prototypes checked against the definitions here
 
 static uint64_t splitmix_state;
 static uint64_t xoshiro_state[4];
@@ -57,6 +58,27 @@ uint64_t xoshiro256plus_next(void){
 	xoshiro_state[2] ^= t;
 	xoshiro_state[3] = rol(xoshiro_state[3], 45);
 	return result;
+}
+
+//full 64x64->128 product; __extension__ keeps -pedantic quiet about __int128
+__extension__ typedef unsigned __int128 u128;
+
+/* Unbiased value in [0, n), n > 0. Lemire's method (Lemire 2019, "Fast Random
+Integer Generation in an Interval"): the high half of x*n scales x into range
+using x's strong high bits, unlike x % n which leans on xoshiro256+'s weak low
+bits. The low half tells us if x landed in the biased leftover, which we reject.
+The division only runs when l < n, i.e. almost never. */
+uint64_t rng_below(uint64_t n){
+	u128 m = (u128)xoshiro256plus_next() * n;
+	uint64_t l = (uint64_t)m;
+	if (l < n){
+		uint64_t t = -n % n;//(2^64 - n) mod n, the size of the biased leftover
+		while (l < t){
+			m = (u128)xoshiro256plus_next() * n;
+			l = (uint64_t)m;
+		}
+	}
+	return (uint64_t)(m >> 64);
 }
 
 void rng_init(void){
