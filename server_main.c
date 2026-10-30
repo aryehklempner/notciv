@@ -15,15 +15,16 @@ have received a copy of the GPL with this program. If not, see
 #include <stdlib.h>//exit(), EXIT_SUCCESS
 #include <string.h>//strcmp()
 
+#include "con.h"//con_init()
 #include "log.h"//log_init(), log_msg(), LVL_WARN
+#include "loop.h"//loop_run()
 #include "rng.h"//rng_init()
+#include "sig.h"//sig_init(), shutdown_tty()
 
 //bits: 0=loud 1=quiet 2-8=rsvd
 uint8_t srv_flags;
 
-void register_handlers(void);
 void limits_init(void);
-void shutdown_tty(void);
 
 static inline void argchk(int argc, char *argv[]){
 	for (int i = 1; i < argc; i++){
@@ -63,10 +64,12 @@ static inline void parse_args(int argc, char *argv[]){
 int main(int argc, char *argv[]){
 	log_init();
 	if (argc > 1) argchk(argc, argv);
-	register_handlers();
+	int sigfd = sig_init();//a file descriptor, so int is the API's type
 	if (argc > 1) parse_args(argc, argv);
 	rng_init();
 	limits_init();
+	con_init();
+	loop_run(sigfd);
 	shutdown_tty();
 	exit(EXIT_SUCCESS);
 }

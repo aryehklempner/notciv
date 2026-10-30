@@ -1,4 +1,4 @@
-//Signal handling
+//Signal handling through a signalfd
 /*(c) 2019-20 Aryeh Klempner <arayaydev@gmail.com>
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License (GPL) as published by the Free
@@ -9,47 +9,40 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GPL for more details. You should
 have received a copy of the GPL with this program. If not, see
 <http://www.gnu.org/licenses/>.*/
 
-#include <signal.h>//sigaction(), sigemptyset(), sigaddset(), raise(), sigset_t, sig_atomic_t, SA_RESTART, SIG*
+
+#include <errno.h>//errno, EAGAIN, EINTR
+#include <signal.h>//sigaction(), sigemptyset(), sigaddset(), sigprocmask(), raise(), sigset_t, struct sigaction, SIG*
 #include <stdint.h>
 #include <stdio.h>//perror()
 #include <stdlib.h>//exit(), abort(), EXIT_FAILURE, NULL
 #include <string.h>//memset()
+#include <sys/signalfd.h>//signalfd(), struct signalfd_siginfo, SFD_NONBLOCK, SFD_CLOEXEC
 #include <termios.h>//tcdrain(), tcflush(), TCIFLUSH
-#include <unistd.h>//alarm(), isatty(), _exit(), STD*_FILENO
+#include <unistd.h>//read(), isatty(), tcgetpgrp(), getpgrp(), STD*_FILENO
 
+#include "clk.h"//now_ns()
 #include "log.h"//log_msg(), LVL_INFO
+#include "loop.h"//loop_stop()
+#include "sig.h"//sig_init(), sig_read(), shutdown_tty()
 
-//0: whether a tty sig was rcvd in past second; 1-8 rsvd
-volatile sig_atomic_t sigflags;
-//0 until a stop is requested, then the signal number; only handlers write it
-volatile sig_atomic_t stop_sig;
+#define DBL_NS UINT64_C(1000000000) //a second tty signal inside this window counts as a double press
 
-void handl_alrm(int sig){
-	(void)sig;
-	sigflags &= 0xFE;
-}
+static int sigfd;
+static uint64_t armed_ns;//when the first tty signal arrived; 0 if none is pending
 
-void rq_stop(int sig){
-	if (stop_sig) _exit(EXIT_FAILURE);//already shutting down and the user insists
-	stop_sig = sig;
-}
-
-//normal context only; call on the way out of main()
-void shutdown_tty(void){
-	if (isatty(STDIN_FILENO)) tcflush(STDIN_FILENO, TCIFLUSH);
-	if (isatty(STDOUT_FILENO)) tcdrain(STDOUT_FILENO);
-	if (isatty(STDERR_FILENO)) tcdrain(STDERR_FILENO);
-}
-
-void chk_dbl(int sig){
-	if (!(sigflags & 0x01)){
-		sigflags |= 0x01;
-		alarm(1U);
+//first tty signal arms; a second one inside the window acts. Handled in normal
+//context now, so unlike a handler it can't run while the loop is stuck.
+static void chk_dbl(uint32_t sig){
+	uint64_t now = now_ns();
+	if (!armed_ns || now - armed_ns >= DBL_NS){//first press, or the last one went stale
+		armed_ns = now;
+		return;
 	}
+	armed_ns = 0;
 //Note that we only check # of this sig, so e.g. ^C^Z will stop.
-	else switch (sig){
+	switch (sig){
 		case SIGINT:
-			rq_stop(sig);
+			loop_stop(sig);
 			break;
 		case SIGQUIT:
 			abort();
@@ -57,36 +50,55 @@ void chk_dbl(int sig){
 		case SIGTSTP:
 			raise(SIGSTOP);
 			break;
-		default: rq_stop(sig);
+		default: loop_stop(sig);
 	}
 }
 
-void register_handlers(void){//see `man sigaction` if confused
-	struct sigaction sigstruct;
-	memset(&sigstruct, 0, sizeof sigstruct);//fields we don't set (sa_restorer etc.) must not be stack garbage
-	sigset_t blkmask;
-	sigemptyset(&blkmask);
-	sigaddset(&blkmask, SIGALRM);
-	sigaddset(&blkmask, SIGHUP);
-	sigaddset(&blkmask, SIGINT);
-	sigaddset(&blkmask, SIGQUIT);
-	sigaddset(&blkmask, SIGTERM);
-	sigaddset(&blkmask, SIGTSTP);
-	sigstruct.sa_flags = SA_RESTART;
-	sigstruct.sa_mask = blkmask;
-	sigstruct.sa_handler = handl_alrm;
-	if (sigaction(SIGALRM, &sigstruct, NULL) == -1) goto err;
-	sigstruct.sa_handler = rq_stop;
-	if (sigaction(SIGHUP, &sigstruct, NULL) == -1) goto err;
-	if (sigaction(SIGTERM, &sigstruct, NULL) == -1) goto err;
-	sigstruct.sa_handler = chk_dbl;
-	if (sigaction(SIGINT, &sigstruct, NULL) == -1) goto err;
-	if (sigaction(SIGQUIT, &sigstruct, NULL) == -1) goto err;
-	if (sigaction(SIGTSTP, &sigstruct, NULL) == -1) goto err;
-	sigstruct.sa_handler = SIG_IGN;//a dead client socket must not kill the server; check for EPIPE instead
-	if (sigaction(SIGPIPE, &sigstruct, NULL) == -1) goto err;
-	log_msg(LVL_INFO, "All signal handlers set up successfully");
-	return;
-err:perror("Signal handler setup failed");
+void sig_read(void){
+	struct signalfd_siginfo si;
+	while (read(sigfd, &si, sizeof si) == (ssize_t) sizeof si){
+		switch (si.ssi_signo){
+			case SIGINT:
+			case SIGQUIT:
+			case SIGTSTP:
+				chk_dbl(si.ssi_signo);
+				break;
+			default: loop_stop(si.ssi_signo);//SIGHUP and SIGTERM stop at once
+		}
+	}
+	if (errno != EAGAIN && errno != EINTR) perror("Reading the signalfd failed");
+}
+
+int sig_init(void){//see `man signalfd` if confused
+	sigset_t mask;
+	struct sigaction ign;
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGHUP);
+	sigaddset(&mask, SIGINT);
+	sigaddset(&mask, SIGQUIT);
+	sigaddset(&mask, SIGTERM);
+	sigaddset(&mask, SIGTSTP);
+//one thread for now; this becomes pthread_sigmask() before the first extra thread
+	if (sigprocmask(SIG_BLOCK, &mask, NULL) == -1) goto err;
+	sigfd = signalfd(-1, &mask, SFD_NONBLOCK | SFD_CLOEXEC);
+	if (sigfd == -1) goto err;
+	memset(&ign, 0, sizeof ign);
+	ign.sa_handler = SIG_IGN;//a dead client socket must not kill the server; check for EPIPE instead
+	if (sigaction(SIGPIPE, &ign, NULL) == -1) goto err;
+	log_msg(LVL_INFO, "Signal handling set up successfully");
+	return sigfd;
+err:perror("Signal setup failed");
 	exit(EXIT_FAILURE);
+}
+
+//a background job that calls tcdrain() or tcflush() on its terminal is stopped by SIGTTOU
+static uint8_t tty_fg(int fd){
+	return isatty(fd) && tcgetpgrp(fd) == getpgrp();
+}
+
+//normal context only; call on the way out of main()
+void shutdown_tty(void){
+	if (tty_fg(STDIN_FILENO)) tcflush(STDIN_FILENO, TCIFLUSH);
+	if (tty_fg(STDOUT_FILENO)) tcdrain(STDOUT_FILENO);
+	if (tty_fg(STDERR_FILENO)) tcdrain(STDERR_FILENO);
 }

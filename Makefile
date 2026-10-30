@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -O2 -fno-math-errno -funsigned-char -fomit-frame-pointer -fexpensive-optimizations -flto -march=native -Wformat-security -Warray-bounds -Wshadow -Winit-self -Wredundant-decls -Wcast-align=strict -Wundef -Wfloat-equal -Winline -Wunreachable-code -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -pedantic -Wfatal-errors -Wextra -Wall
 ODIR = obj
 BIN = ../bin/notciv-server
-SRCS = server_main.c sig.c rng.c log.c limits.c
+SRCS = server_main.c sig.c rng.c log.c limits.c loop.c con.c
 OBJS = $(SRCS:%.c=$(ODIR)/%.o)
 HDRS = $(wildcard *.h)
 
